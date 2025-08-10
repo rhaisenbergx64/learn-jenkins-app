@@ -42,5 +42,21 @@ pipeline {
             
         }
 
+        stage('Explore Stage') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+
+            steps {
+                sh '''
+                echo "I am only testing my ability to add another stage"
+                '''
+            }
+        }
+
+
                 }
 }
