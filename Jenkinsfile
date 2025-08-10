@@ -28,6 +28,7 @@ pipeline {
             npm test
             ls -la
             echo "This is Test Stage"
+            echo "Success"
 
             '''
             }
