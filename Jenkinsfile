@@ -23,7 +23,10 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
+            parallel {
+
+                stage('Test') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -41,21 +44,6 @@ pipeline {
             '''
             }
 
-        }
-
-        stage('Explore Stage') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-
-            steps {
-                sh '''
-                echo "I am only testing my ability to add another stage"
-                '''
-            }
         }
 
         stage('E2E ') {
@@ -76,8 +64,11 @@ pipeline {
             }
         }
 
-
     }
+
+            }
+
+        }
 
     post {
         always {
