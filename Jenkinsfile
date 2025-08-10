@@ -17,9 +17,25 @@ pipeline {
                 npm ci
                 npm run build
                 ls -la
+                echo "This is build stage"
 
                 '''
             }
         }
+        stage('Test') {
+            steps {
+                sh '''
+            npm test
+            ls -la
+            echo "This is Test Stage"
+
+            '''
+            }
+            
+        }
+
+                }
+        
+
     }
 }
