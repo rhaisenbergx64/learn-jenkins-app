@@ -32,6 +32,7 @@ pipeline {
             steps {
                 sh '''
             npm test
+            ls -l /build | grep index.html
             ls -la
             echo "This is Test Stage"
             echo "Success"
