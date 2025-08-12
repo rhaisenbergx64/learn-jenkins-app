@@ -64,13 +64,13 @@ pipeline {
         stage('Deploy') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
-                npm install -g netlify-cli
+                npm install netlify-cli
                 node_modules/.bin/netlify --version
                         '''
                 }
