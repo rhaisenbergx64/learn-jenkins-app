@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_PROJECT_ID= '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
+        NETLIFY_SITE_ID= '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
         NETLIFY_AUTH_TOKEN= credentials('netlify-token')
     }
 
     stages {
-        /*stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -26,7 +26,6 @@ pipeline {
                 '''
             }
         }
-        */
 
         stage('Run Tests') {
             parallel {
@@ -78,7 +77,7 @@ pipeline {
                 sh '''
                 npm install netlify-cli@20.1.1
                 node_modules/.bin/netlify --version
-                echo "Deploying to production, SITE ID: $NETLIFY_PROJECT_ID"
+                echo "Deploying to production, SITE ID: $NETLIFY_SITE_ID"
                 node_modules/.bin/netlify status --verbose
                         '''
                 }
