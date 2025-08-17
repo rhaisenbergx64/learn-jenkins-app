@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID= '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
-        NETLIFY_AUTH_TOKEN= credentials('netlify-token')
+        NETLIFY_SITE_ID = '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
+        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
     stages {
@@ -62,6 +62,22 @@ pipeline {
                             npx playwright test --reporter=html
                         '''
                     }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: false,
+                                icon: '',
+                                keepAll: false,
+                                reportDir: 'playwright-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Playwright HTML Report',
+                                reportTitles: '',
+                                useWrapperFileDirectly: true
+                            ])
+                        }
+                    }
                 }
             }
         }
@@ -75,15 +91,33 @@ pipeline {
             }
             steps {
                 sh '''
-                npm install netlify-cli@20.1.1
-                node_modules/.bin/netlify --version
-                echo "Deploying to production, SITE ID: $NETLIFY_SITE_ID"
-                node_modules/.bin/netlify status --verbose
-                node_modules/.bin/netlify deploy --dir=build --prod
-                        '''
+                    npm install netlify-cli@20.1.1
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to production, SITE ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status --verbose
+                    node_modules/.bin/netlify deploy --dir=build --prod
+                '''
+            }
+        }
+
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
                 }
             }
-
+            environment {
+                NETLIFY_SITE_ID = '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
+                NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+                CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+        }
     }
 
     post {
@@ -96,7 +130,7 @@ pipeline {
                 keepAll: false,
                 reportDir: 'playwright-report',
                 reportFiles: 'index.html',
-                reportName: 'Playwright HTML Report',
+                reportName: 'Playwright Prod HTML Report',
                 reportTitles: '',
                 useWrapperFileDirectly: true
             ])
