@@ -10,7 +10,7 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'node:20.12.2-buster'
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
                 stage('Test') {
                     agent {
                         docker {
-                            image 'node:20.12.2-buster'
+                            image 'node:18-alpine'
                             reuseNode true
                         }
                     }
@@ -87,7 +87,7 @@ pipeline {
         stage('Deploy') {
             agent {
                 docker {
-                    image 'node:20.12.2-buster'
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
