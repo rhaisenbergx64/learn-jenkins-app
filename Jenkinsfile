@@ -17,8 +17,8 @@ pipeline {
             steps {
                 sh '''
                     ls -la
-                    node -v
-                    npm -v
+                    node --version
+                    npm --version
                     npm ci
                     npm run build
                     ls -la
@@ -39,10 +39,6 @@ pipeline {
                     steps {
                         sh '''
                             npm test
-                            ls -la
-                            ls -l build | grep index.html
-                            echo "This is Test Stage"
-                            echo "Success"
                         '''
                     }
                 }
