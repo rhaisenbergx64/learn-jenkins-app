@@ -19,7 +19,7 @@ pipeline {
                     ls -la
                     node --version
                     npm --version
-                    npm ci
+                    npm ci --omit=dev
                     npm run build
                     ls -la
                     echo "This is build stage"
