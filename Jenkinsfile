@@ -41,7 +41,7 @@ pipeline {
                             npm test
                         '''
                     }
-                     post {
+                    post {
                         always {
                             junit 'jest-results/junit.xml'
                         }
@@ -57,8 +57,7 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            npm install serve
-                            node_modules/.bin/serve -s build &
+                            npx serve -s build &
                             sleep 10
                             npx playwright test --reporter=html
                         '''
@@ -90,11 +89,10 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1
-                    node_modules/.bin/netlify --version
+                    npx netlify --version
                     echo "Deploying to production. SITE ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
+                    npx netlify status
+                    npx netlify deploy --dir=build --prod
                 '''
             }
         }
