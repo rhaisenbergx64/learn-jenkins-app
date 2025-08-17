@@ -66,11 +66,10 @@ pipeline {
                             publishHTML([
                                 allowMissing: false,
                                 alwaysLinkToLastBuild: false,
-                                icon: '',
                                 keepAll: false,
                                 reportDir: 'playwright-report',
                                 reportFiles: 'index.html',
-                                reportName: 'Playwright HTML Report',
+                                reportName: 'Playwright Local',
                                 reportTitles: '',
                                 useWrapperFileDirectly: true
                             ])
@@ -92,7 +91,7 @@ pipeline {
                     npm install netlify-cli@20.1.1
                     node_modules/.bin/netlify --version
                     echo "Deploying to production, SITE ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status --verbose
+                    node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
@@ -106,8 +105,6 @@ pipeline {
                 }
             }
             environment {
-                NETLIFY_SITE_ID = '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
-                NETLIFY_AUTH_TOKEN = credentials('netlify-token')
                 CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
             }
             steps {
@@ -124,7 +121,6 @@ pipeline {
             publishHTML([
                 allowMissing: false,
                 alwaysLinkToLastBuild: false,
-                icon: '',
                 keepAll: false,
                 reportDir: 'playwright-report',
                 reportFiles: 'index.html',
