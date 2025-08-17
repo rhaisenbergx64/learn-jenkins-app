@@ -15,22 +15,22 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm install
-                    npm ci
-                    npm run build
-                    ls -la
-                    echo "This is build stage"
-                '''
+                cache(path: "${HOME}/.npm", key: "npm-cache") {
+                    sh '''
+                        node --version
+                        npm --version
+                        npm ci
+                        npm run build
+                        ls -la build
+                        echo "✅ Build completed"
+                    '''
+                }
             }
         }
 
         stage('Run Tests') {
             parallel {
-                stage('Test') {
+                stage('Unit Tests') {
                     agent {
                         docker {
                             image 'node:18-alpine'
@@ -38,9 +38,7 @@ pipeline {
                         }
                     }
                     steps {
-                        sh '''
-                            npm test
-                        '''
+                        sh 'npm test'
                     }
                     post {
                         always {
@@ -72,7 +70,6 @@ pipeline {
                                 reportDir: 'playwright-report',
                                 reportFiles: 'index.html',
                                 reportName: 'Playwright Local',
-                                reportTitles: '',
                                 useWrapperFileDirectly: true
                             ])
                         }
@@ -91,7 +88,7 @@ pipeline {
             steps {
                 sh '''
                     npx netlify --version
-                    echo "Deploying to production. SITE ID: $NETLIFY_SITE_ID"
+                    echo "🚀 Deploying to production (Site ID: $NETLIFY_SITE_ID)"
                     npx netlify status
                     npx netlify deploy --dir=build --prod
                 '''
@@ -125,7 +122,6 @@ pipeline {
                 reportDir: 'playwright-report',
                 reportFiles: 'index.html',
                 reportName: 'Playwright E2E',
-                reportTitles: '',
                 useWrapperFileDirectly: true
             ])
         }
