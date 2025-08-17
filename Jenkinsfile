@@ -5,6 +5,7 @@ pipeline {
         NETLIFY_SITE_ID = '6ee338b1-b7ec-4467-aa80-e8f9bce811b7'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
+    /*
 
     stages {
         stage('Build') {
@@ -26,6 +27,7 @@ pipeline {
                 '''
             }
         }
+        */
 
         stage('Run Tests') {
             parallel {
