@@ -15,20 +15,19 @@ pipeline {
                 }
             }
             steps {
-                cache(path: "${HOME}/.npm", key: "npm-cache") {
                     sh '''
+                        la -la
                         node --version
                         npm --version
                         npm ci
                         npm run build
-                        ls -la build
-                        echo "✅ Build completed"
+                        ls -la
+                        echo "Build completed"
                     '''
                 }
             }
-        }
 
-        stage('Run Tests') {
+        stage('Tests') {
             parallel {
                 stage('Unit Tests') {
                     agent {
@@ -56,7 +55,8 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            npx serve -s build &
+                            npm install serve
+                            node_modules/.bin/serve -s build &
                             sleep 10
                             npx playwright test --reporter=html
                         '''
@@ -87,43 +87,14 @@ pipeline {
             }
             steps {
                 sh '''
-                    npx netlify --version
-                    echo "🚀 Deploying to production (Site ID: $NETLIFY_SITE_ID)"
-                    npx netlify status
-                    npx netlify deploy --dir=build --prod
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
 
-        stage('Prod E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    reuseNode true
-                }
-            }
-            environment {
-                CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
-            }
-            steps {
-                sh '''
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: false,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright E2E',
-                useWrapperFileDirectly: true
-            ])
-        }
     }
 }
