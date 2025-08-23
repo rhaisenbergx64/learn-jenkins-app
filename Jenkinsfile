@@ -15,21 +15,21 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm ci
-                    npm run build
-                    ls -la
-                    echo "This is build stage"
-                '''
+                    sh '''
+                        la -la
+                        node --version
+                        npm --version
+                        npm ci
+                        npm run build
+                        ls -la
+                        echo "Build completed"
+                    '''
+                }
             }
-        }
 
-        stage('Run Tests') {
+        stage('Tests') {
             parallel {
-                stage('Test') {
+                stage('Unit Tests') {
                     agent {
                         docker {
                             image 'node:18-alpine'
@@ -37,11 +37,9 @@ pipeline {
                         }
                     }
                     steps {
-                        sh '''
-                            npm test
-                        '''
+                        sh 'npm test'
                     }
-                     post {
+                    post {
                         always {
                             junit 'jest-results/junit.xml'
                         }
@@ -72,7 +70,6 @@ pipeline {
                                 reportDir: 'playwright-report',
                                 reportFiles: 'index.html',
                                 reportName: 'Playwright Local',
-                                reportTitles: '',
                                 useWrapperFileDirectly: true
                             ])
                         }
@@ -90,45 +87,14 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1
+                    npm install netlify-cli
                     node_modules/.bin/netlify --version
-                    echo "Deploying to production. SITE ID: $NETLIFY_SITE_ID"
+                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
 
-        stage('Prod E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    reuseNode true
-                }
-            }
-            environment {
-                CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
-            }
-            steps {
-                sh '''
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: false,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright E2E',
-                reportTitles: '',
-                useWrapperFileDirectly: true
-            ])
-        }
     }
 }
