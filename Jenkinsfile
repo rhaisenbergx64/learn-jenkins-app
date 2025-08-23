@@ -16,7 +16,7 @@ pipeline {
             }
             steps {
                     sh '''
-                        la -la
+                        ls -la
                         node --version
                         npm --version
                         npm ci
