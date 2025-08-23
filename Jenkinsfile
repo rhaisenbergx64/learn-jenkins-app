@@ -89,10 +89,11 @@ pipeline {
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
+                    apk add --no-cache bash
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify 
                     ls -la
-                    node_modules/.bin/netlify deploy --dir=build --prod
+                    npx netlify deploy --dir=build --prod --skip-build
                 '''
             }
         }
