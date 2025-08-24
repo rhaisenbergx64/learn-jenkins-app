@@ -95,6 +95,36 @@ pipeline {
                 '''
             }
         }
+        stage('Prod E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
+                            reuseNode true
+                        }
+                    }
+
+                    environment {
+                        CI_ENVIRONMENT_URL= 'https://lighthearted-bavarois-c77534.netlify.app'
+                    }
+                    steps {
+                        sh '''
+                            npx playwright test --reporter=html
+                        '''
+                    }
+                    post {
+                        always {
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: false,
+                                keepAll: false,
+                                reportDir: 'playwright-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Playwright Prod',
+                                useWrapperFileDirectly: true
+                            ])
+                        }
+                    }
+                }
 
     }
 }
