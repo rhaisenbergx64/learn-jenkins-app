@@ -98,7 +98,7 @@ pipeline {
 
         stage('Approval') {
             steps {
-                '''
+               sh  '''
                 echo "This is Approval Stage"
 
                 '''
