@@ -96,6 +96,12 @@ pipeline {
             }
         }
 
+        stage('Approval') {
+            steps {
+
+            }
+        }
+
 
         stage('Deploy to Prod') {
             agent {
@@ -105,6 +111,7 @@ pipeline {
                 }
             }
             steps {
+
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
