@@ -102,21 +102,21 @@ pipeline {
             }
         }
 
-         stage('Staging E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
-                            reuseNode true
-                        }
-                    }
 
+        stage('Staging E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
+                    reuseNode true
+                    }
+                    }
                     environment {
                         CI_ENVIRONMENT_URL= "${env.STAGING_URL}"
-                    }
-                    steps {
-                        sh '''
+                        }
+                        steps {
+                            sh '''
                             npx playwright test --reporter=html
-                        '''
+                            '''
                     }
                     post {
                         always {
