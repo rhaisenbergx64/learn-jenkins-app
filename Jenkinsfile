@@ -15,17 +15,17 @@ pipeline {
                 }
             }
             steps {
-                    sh '''
-                        ls -la
-                        node --version
-                        npm --version
-                        npm ci
-                        npm run build
-                        ls -la
-                        echo "Build completed"
-                    '''
-                }
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                    echo "Build completed"
+                '''
             }
+        }
 
         stage('Tests') {
             parallel {
@@ -93,57 +93,56 @@ pipeline {
                     node_modules/.bin/netlify 
                     npx netlify deploy --dir=build
                     npx netlify deploy --dir=build --json > deploy-output.json
-                    
                 '''
-                script{
-                env.STAGING_URL=sh(script:"node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
-            }
-
+                script {
+                    env.STAGING_URL = sh(
+                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true
+                    )
+                }
             }
         }
+
         stage('Staging E2E') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
                     reuseNode true
-                    }
-                    }
-                    environment {
-                        CI_ENVIRONMENT_URL= "${env.STAGING_URL}"
-                        }
-                        steps {
-                            sh '''
-                            npx playwright test --reporter=html
-                            '''
-                            }
-                            post {
-                                always {
-                                    publishHTML([
-                                        allowMissing: false,
-                                        alwaysLinkToLastBuild: false,
-                                        keepAll: false,
-                                        reportDir: 'playwright-report',
-                                        reportFiles: 'index.html',
-                                        reportName: 'Playwright Prod',
-                                        useWrapperFileDirectly: true
-                                        ])
-                                        }
-                                        }
-
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Prod',
+                        useWrapperFileDirectly: true
+                    ])
+                }
+            }
+        }
 
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                input message: 'Do you wish to deploy to production ?', ok: 'Yes i am sure'
-               sh  '''
-                echo "This is Approval Stage"
-
-                '''
+                    input message: 'Do you wish to deploy to production ?', ok: 'Yes i am sure'
+                    sh '''
+                        echo "This is Approval Stage"
+                    '''
                 }
-
             }
         }
-
 
         stage('Deploy to Prod') {
             agent {
@@ -153,7 +152,6 @@ pipeline {
                 }
             }
             steps {
-
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
@@ -163,37 +161,35 @@ pipeline {
                 '''
             }
         }
+
         stage('Prod E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
-                            reuseNode true
-                        }
-                    }
-
-                    environment {
-                        CI_ENVIRONMENT_URL= 'https://lighthearted-bavarois-c77534.netlify.app'
-                    }
-                    steps {
-                        sh '''
-                            npx playwright test --reporter=html
-                        '''
-                    }
-                    post {
-                        always {
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: false,
-                                keepAll: false,
-                                reportDir: 'playwright-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Playwright Prod',
-                                useWrapperFileDirectly: true
-                            ])
-                        }
-                    }
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
+                    reuseNode true
                 }
-
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Prod',
+                        useWrapperFileDirectly: true
+                    ])
+                }
+            }
+        }
     }
-}
 }
