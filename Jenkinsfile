@@ -15,17 +15,17 @@ pipeline {
                 }
             }
             steps {
-                    sh '''
-                        ls -la
-                        node --version
-                        npm --version
-                        npm ci
-                        npm run build
-                        ls -la
-                        echo "Build completed"
-                    '''
-                }
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                    echo "Build completed"
+                '''
             }
+        }
 
         stage('Tests') {
             parallel {
@@ -64,13 +64,9 @@ pipeline {
                     post {
                         always {
                             publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: false,
-                                keepAll: false,
                                 reportDir: 'playwright-report',
                                 reportFiles: 'index.html',
-                                reportName: 'Playwright Local',
-                                useWrapperFileDirectly: true
+                                reportName: 'Playwright Local'
                             ])
                         }
                     }
@@ -88,62 +84,51 @@ pipeline {
             steps {
                 sh '''
                     npm install netlify-cli node-jq
-                    node_modules/.bin/netlify --version
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify 
-                    npx netlify deploy --dir=build
                     npx netlify deploy --dir=build --json > deploy-output.json
-                    
                 '''
-                script{
-                env.STAGING_URL=sh(script:"node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
-            }
-
+                script {
+                    env.STAGING_URL = sh(
+                        script: "npx jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true
+                    ).trim()
+                    echo "Staging URL: ${env.STAGING_URL}"
+                }
             }
         }
+
         stage('Staging E2E') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
                     reuseNode true
-                    }
-                    }
-                    environment {
-                        CI_ENVIRONMENT_URL= "${env.STAGING_URL}"
-                        }
-                        steps {
-                            sh '''
-                            npx playwright test --reporter=html
-                            '''
-                    }
-                    post {
-                        always {
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: false,
-                                keepAll: false,
-                                reportDir: 'playwright-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Playwright Prod',
-                                useWrapperFileDirectly: true
-                            ])
-                        }
-                    }
-
+                }
+            }
+            steps {
+                sh '''
+                    echo "Running E2E tests against staging: $STAGING_URL"
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Staging'
+                    ])
+                }
+            }
+        }
 
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                input message: 'Do you wish to deploy to production ?', ok: 'Yes i am sure'
-               sh  '''
-                echo "This is Approval Stage"
-
-                '''
+                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure'
                 }
-
+                sh 'echo "Approval granted. Proceeding to Production deployment."'
             }
         }
-
 
         stage('Deploy to Prod') {
             agent {
@@ -153,47 +138,39 @@ pipeline {
                 }
             }
             steps {
-
                 sh '''
                     npm install netlify-cli
-                    node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify 
                     npx netlify deploy --dir=build --prod
                 '''
             }
         }
+
         stage('Prod E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
-                            reuseNode true
-                        }
-                    }
-
-                    environment {
-                        CI_ENVIRONMENT_URL= 'https://lighthearted-bavarois-c77534.netlify.app'
-                    }
-                    steps {
-                        sh '''
-                            npx playwright test --reporter=html
-                        '''
-                    }
-                    post {
-                        always {
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: false,
-                                keepAll: false,
-                                reportDir: 'playwright-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Playwright Prod',
-                                useWrapperFileDirectly: true
-                            ])
-                        }
-                    }
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
+                    reuseNode true
                 }
-
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
+            }
+            steps {
+                sh '''
+                    echo "Running E2E tests against production: $CI_ENVIRONMENT_URL"
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Prod'
+                    ])
+                }
+            }
+        }
     }
-}
 }
