@@ -1,5 +1,3 @@
-can you help correct this ?
-
 pipeline {
     agent any
 
