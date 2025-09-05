@@ -85,17 +85,27 @@ pipeline {
                     reuseNode true
                 }
             }
-            environment {
-                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+
             }
+
             steps {
                 sh '''
                 npm install netlify-cli node-jq
                 node_modules/.bin/netlify --version
                 echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                node_modules/.bin/netlify status
                 node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                CI_ENVIRONMENT_URL = ${node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json}
+                npx playwright test --reporter=html
+
+                '''
+                script {
+                      env.CI_ENVIRONMENT_URL = sh(
+                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true
+
+                      ).trim()
+                      echo "Staging URL set to: ${env.CI_ENVIRONMENT_URL}"
+                }
+                sh '''
                 npx playwright test --reporter=html
                 '''
             }
@@ -112,7 +122,6 @@ pipeline {
                     ])
                 }
             }
-        }
 
         stage('Approval') {
             steps {
@@ -135,15 +144,19 @@ pipeline {
             environment {
                 CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
             }
+        }
             steps {
                 sh '''
                 npm install netlify-cli
                 node_modules/.bin/netlify --version
                 echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                node_modules/.bin/netlify 
-                npx netlify deploy --dir=build --prod
+                node_modules/.bin/netlify deploy --dir=build --prod
+                '''
+
+                sh '''
                 npx playwright test --reporter=html
                 '''
+
             }
             post {
                 always {
@@ -160,4 +173,3 @@ pipeline {
             }
         }
     }
-}
