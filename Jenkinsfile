@@ -126,7 +126,7 @@ pipeline {
                         keepAll: false,
                         reportDir: 'playwright-report',
                         reportFiles: 'index.html',
-                        reportName: 'Playwright Prod',
+                        reportName: 'Playwright Staging',
                         useWrapperFileDirectly: true
                     ])
                 }
