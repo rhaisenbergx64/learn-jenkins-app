@@ -86,22 +86,17 @@ pipeline {
                 }
             }
 
-            }
-
             steps {
                 sh '''
                 npm install netlify-cli node-jq
                 node_modules/.bin/netlify --version
                 echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                 node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                npx playwright test --reporter=html
-
                 '''
                 script {
                       env.CI_ENVIRONMENT_URL = sh(
                         script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
                         returnStdout: true
-
                       ).trim()
                       echo "Staging URL set to: ${env.CI_ENVIRONMENT_URL}"
                 }
@@ -144,7 +139,7 @@ pipeline {
             environment {
                 CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
             }
-        }
+
             steps {
                 sh '''
                 npm install netlify-cli
