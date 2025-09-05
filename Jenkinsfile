@@ -49,7 +49,7 @@ pipeline {
                 stage('E2E') {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwinset-inline-end:v1.54.2-jammy'
+                            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
                             reuseNode true
                         }
                     }
@@ -81,7 +81,7 @@ pipeline {
         stage('Deploy Staging') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwinset-inline-end:v1.54.2-jammy'
+                    image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
                     reuseNode true
                 }
             }
