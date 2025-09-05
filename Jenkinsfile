@@ -85,23 +85,22 @@ pipeline {
                     reuseNode true
                 }
             }
-
             steps {
                 sh '''
-                npm install netlify-cli node-jq
-                node_modules/.bin/netlify --version
-                echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
+                    npm install netlify-cli node-jq
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
                 '''
                 script {
-                      env.CI_ENVIRONMENT_URL = sh(
+                    env.CI_ENVIRONMENT_URL = sh(
                         script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
                         returnStdout: true
-                      ).trim()
-                      echo "Staging URL set to: ${env.CI_ENVIRONMENT_URL}"
+                    ).trim()
+                    echo "Staging URL set to: ${env.CI_ENVIRONMENT_URL}"
                 }
                 sh '''
-                npx playwright test --reporter=html
+                    npx playwright test --reporter=html
                 '''
             }
             post {
@@ -112,19 +111,18 @@ pipeline {
                         keepAll: false,
                         reportDir: 'playwright-report',
                         reportFiles: 'index.html',
-                        reportName: 'Playwright Prod',
+                        reportName: 'Playwright Staging',
                         useWrapperFileDirectly: true
                     ])
                 }
             }
+        }
 
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                    input message: 'Do you wish to deploy to production ?', ok: 'Yes i am sure'
-                    sh '''
-                        echo "This is Approval Stage"
-                    '''
+                    input message: 'Do you wish to deploy to production ?', ok: 'Yes I am sure'
+                    sh 'echo "This is Approval Stage"'
                 }
             }
         }
@@ -139,19 +137,16 @@ pipeline {
             environment {
                 CI_ENVIRONMENT_URL = 'https://lighthearted-bavarois-c77534.netlify.app'
             }
-
             steps {
                 sh '''
-                npm install netlify-cli
-                node_modules/.bin/netlify --version
-                echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                node_modules/.bin/netlify deploy --dir=build --prod
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
-
                 sh '''
-                npx playwright test --reporter=html
+                    npx playwright test --reporter=html
                 '''
-
             }
             post {
                 always {
@@ -168,6 +163,4 @@ pipeline {
             }
         }
     }
-}
-
 }
