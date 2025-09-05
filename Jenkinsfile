@@ -126,13 +126,12 @@ pipeline {
                         keepAll: false,
                         reportDir: 'playwright-report',
                         reportFiles: 'index.html',
-                        reportName: 'Playwright Prod',
+                        reportName: 'Playwright Staging',
                         useWrapperFileDirectly: true
                     ])
                 }
             }
         }
-/*
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
@@ -143,7 +142,7 @@ pipeline {
                 }
             }
         }
-*/
+        
         stage('Deploy to Prod') {
             agent {
                 docker {
@@ -193,3 +192,7 @@ pipeline {
         }
     }
 }
+
+# omo how e dey be na jenkins ?
+
+#another one
