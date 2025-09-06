@@ -8,16 +8,16 @@ pipeline {
 
     stages {
 
-        stage ('Docker') {
+        stage ('Build') {
             steps {
                 sh '''
-                docker build -t my-playwrigt .
+                docker build -t my-playwright .
                 docker images
                 '''
                 }
                 }
 
-        stage('Build') {
+        /*stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -36,7 +36,7 @@ pipeline {
                 '''
             }
         }
-
+*/
         stage('Tests') {
             parallel {
                 stage('Unit Tests') {
