@@ -12,10 +12,9 @@ pipeline {
             steps {
                 sh '''
                 docker build -t my-playwrigt .
-                docker inspect my-playwright
-
                 '''
             }
+            sh 'docker ps'
         }
 
         stage('Build') {
