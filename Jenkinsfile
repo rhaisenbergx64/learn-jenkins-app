@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh '''
                 docker build -t my-playwrigt .
-                docker ps
+                docker images
                 '''
                 }
                 }
