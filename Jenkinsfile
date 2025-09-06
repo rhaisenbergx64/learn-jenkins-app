@@ -15,8 +15,7 @@ pipeline {
                 docker ps
                 '''
                 }
-                sh 'docker ps'
-        }
+                }
 
         stage('Build') {
             agent {
