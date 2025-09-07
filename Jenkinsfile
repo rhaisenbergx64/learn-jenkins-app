@@ -94,10 +94,7 @@ pipeline {
                     // some block
                     sh '''
                 aws --version
-                aws s3 sync build/ s3://$AWS_S3_BUCKET \
-                 --delete \
-                 --exact-timestamps
-
+                aws s3 cp index.html s3://$AWS_S3_BUCKET \
                 '''
                 }
             }
