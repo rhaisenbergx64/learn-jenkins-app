@@ -7,31 +7,6 @@ pipeline {
     }
 
     stages {
-
-        stage('aws-cli') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli:2.28.25'
-                    args "--entrypoint=''"
-                }
-            }
-
-            environment {
-                AWS_S3_BUCKET = 'tolu-learn-jenkins-app'
-            }
-
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-s3-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    // some block
-                    sh '''
-                aws --version
-                aws s3 sync Build s3://$AWS_S3_BUCKET
-
-                '''
-                }
-            }
-        }
-
         stage ('Build') {
             steps {
                 sh '''
