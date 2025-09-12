@@ -42,7 +42,7 @@ pipeline {
                     sh '''
                 aws --version
                 aws ecs register-task-definition \
-                --cli-input-json file://learn-jenkins-app/aws/task-definition.json
+                --cli-input-json file://aws/task-definition.json
                 '''
                 }
             }
