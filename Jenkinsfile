@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_DEFAULT_REGION = 'eu-west3'
+        AWS_DEFAULT_REGION = 'us-east1'
     }
 
     stages {
@@ -41,8 +41,7 @@ pipeline {
                     // some block
                     sh '''
                 aws --version
-                aws ecs register-task-definition \
-                --cli-input-json file://aws/task-definition.json
+                aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
                 '''
                 }
             }
