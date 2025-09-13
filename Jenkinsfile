@@ -45,7 +45,7 @@ pipeline {
 
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-s3-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    
+
                     sh '''
                     amazon-linux-extras install docker 
                     docker build -t  $AWS_ECR/$AWS_IMAGE_NAME:$REACT_APP_VERSION .
@@ -54,6 +54,7 @@ pipeline {
                     docker push $AWS_ECR/$AWS_IMAGE_NAME:$REACT_APP_VERSION
                     '''
                 }
+            }
             }
 
 
