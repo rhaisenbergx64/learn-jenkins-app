@@ -4,6 +4,9 @@ pipeline {
     environment {
         REACT_APP_VERSION = "1.0.$BUILD_ID"
         AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_ECS_CLUSTER = 'tolu-learnjenkins-app'
+        AWS_ECS_SERVICE_PROD = 'tolu-learnjenkinsapp-service-prod'
+        AWS_TD_PROD = 'tolu-learnjenkinsapp-taskdefinitionprod'
     }
 
     stages {
@@ -45,7 +48,8 @@ pipeline {
                 yum install jq -y
                 LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition.revision')
                 echo $LATEST_TD_REVISION
-                aws ecs update-service --cluster tolu-learnjenkins-app --service tolu-learnjenkinsapp-service-prod --task-definition tolu-learnjenkinsapp-taskdefinitionprod:$LATEST_TD_REVISION
+                aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE_PROD  --task-definition $AWS_TD_PROD:$LATEST_TD_REVISION
+                aws ecs wait services-stable --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE_PROD
                 '''
                 }
             }
