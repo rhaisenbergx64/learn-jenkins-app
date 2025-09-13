@@ -33,7 +33,7 @@ pipeline {
                 docker {
                     image 'amazon/aws-cli:2.28.25'
                     reuseNode true
-                    args "--entrypoint=''"
+                    args "-u root--entrypoint=''"
                 }
             }
 
@@ -42,9 +42,10 @@ pipeline {
                     // some block
                     sh '''
                 aws --version
-                aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
-                aws ecs update-service --cluster tolu-learnjenkins-app --service tolu-learnjenkinsapp-service-prod --task-definition tolu-learnjenkinsapp-taskdefinitionprod:2
-
+                yum install jq -y
+                LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition')
+                echo $LATEST_TD_REVISION
+                aws ecs update-service --cluster tolu-learnjenkins-app --service tolu-learnjenkinsapp-service-prod --task-definition tolu-learnjenkinsapp-taskdefinitionprod:$LATEST_TD_REVISION
                 '''
                 }
             }
