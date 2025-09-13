@@ -10,7 +10,7 @@ pipeline {
     }
 
     stages {
-       /* stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -29,7 +29,15 @@ pipeline {
                 '''
             }
         }
-        */
+
+        stage('build docker image') {
+            steps {
+                sh 'docker build -t tolujenkinsappimage .'
+
+            }
+        }
+
+
 
         stage('deploy to aws') {
             agent {

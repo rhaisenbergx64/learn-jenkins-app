@@ -1,0 +1,11 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('docker') {
+            steps {
+                sh 'docker build -f ci/Dockerfile -t tolus-jenkins-image'
+            }
+        }
+    }
+}
