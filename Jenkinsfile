@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         REACT_APP_VERSION = "1.0.$BUILD_ID"
+        AWS_IMAGE_NAME = 'tolujenkinsappimage'
         AWS_DEFAULT_REGION = 'us-east-1'
         AWS_ECS_CLUSTER = 'tolu-learnjenkins-app'
         AWS_ECS_SERVICE_PROD = 'tolu-learnjenkinsapp-service-prod'
@@ -23,9 +24,10 @@ pipeline {
                     node --version
                     npm --version
                     npm ci
-                    npm run build
+                    REACT_APP_VERSION=$REACT_APP_VERSION npm run build
                     ls -la
-                    echo "Build completed"
+                    echo "Build completed with version: $REACT_APP_VERSION"
+                    
                 '''
             }
         }
@@ -42,7 +44,7 @@ pipeline {
             steps {
                 sh '''
                 amazon-linux-extras install docker 
-                docker build -t tolujenkinsappimage .
+                docker build -t $AWS_IMAGE_NAME:$REACT_APP_VERSION .
                 docker images
                 '''
             }
