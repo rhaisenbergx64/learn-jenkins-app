@@ -31,9 +31,19 @@ pipeline {
         }
 
         stage('build docker image') {
-            steps {
-                sh 'docker build -t tolujenkinsappimage .'
+            agent {
+                docker {
+                    image 'amazon/aws-cli:2.28.25'
+                    reuseNode true
+                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
 
+                }
+            }
+            steps {
+                sh '''
+                amazon-linux-extra install docker 
+                docker build -t tolujenkinsappimage .
+                '''
             }
         }
 
