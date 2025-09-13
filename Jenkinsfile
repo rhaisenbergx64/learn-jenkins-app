@@ -33,7 +33,7 @@ pipeline {
                 docker {
                     image 'amazon/aws-cli:2.28.25'
                     reuseNode true
-                    args "-u root--entrypoint=''"
+                    args "-u root --entrypoint=''"
                 }
             }
 
