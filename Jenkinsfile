@@ -43,11 +43,14 @@ pipeline {
                     sh '''
                 aws --version
                 aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
+                aws ecs update-service --cluster tolu-learnjenkins-app --service tolu-learnjenkinsapp-service-prod --task-definition tolu-learnjenkinsapp-service-prod
+
                 '''
                 }
             }
         }
 
+/*
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
@@ -56,6 +59,7 @@ pipeline {
                 }
             }
         }
+*/
 
     }
 }
