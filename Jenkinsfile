@@ -8,7 +8,7 @@ pipeline {
         AWS_ECS_CLUSTER = 'tolu-learnjenkins-app'
         AWS_ECS_SERVICE_PROD = 'tolu-learnjenkinsapp-service-prod'
         AWS_TD_PROD = 'tolu-learnjenkinsapp-taskdefinitionprod'
-        AWS_ECR = '891612571043.dkr.ecr.us-east-1.amazonaws.com/tolujenkinsappimage'
+        AWS_ECR = '891612571043.dkr.ecr.us-east-1.amazonaws.com'
     }
 
     stages {
@@ -47,7 +47,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'aws-s3-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
 
                     sh '''
-                    amazon-linux-extras install docker 
+                    amazon-linux-extras install docker -y
                     docker build -t  $AWS_ECR/$AWS_IMAGE_NAME:$REACT_APP_VERSION .
                     docker images
                     aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_ECR
