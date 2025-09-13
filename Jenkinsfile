@@ -73,7 +73,7 @@ pipeline {
                     // some block
                     sh '''
                 aws --version
-                sed -i "s/#APP_VERSION#/$REACT_APP_VERSION/g" learn-jenkins-app\aws\task-definition.json
+                sed -i "s/#APP_VERSION#/$REACT_APP_VERSION/g" learn-jenkins-app\aws\task-definition.json"
                 yum install jq -y
                 LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition.revision')
                 echo $LATEST_TD_REVISION
